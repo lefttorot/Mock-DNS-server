@@ -1,0 +1,55 @@
+from socket import *
+
+
+# function to search dictionary
+def retrieve(hostname):
+    # detaches header from host name
+    record_type = hostname[0]
+    key = hostname[1:]
+    # adds www. if user omitted that part
+    if key[0:4] != "www.":
+        key = "www." + key
+    # searches relevant dictionary
+    if record_type == "1":
+        if key in type_a:
+            return type_a[key]
+        else:
+            return "error - not found"
+    if record_type == "2":
+        if key in c_name:
+            return c_name[key]
+        else:
+            return "error - not found"
+
+
+# dictionary with type A key value pairs
+type_a = {
+  "www.youtube.com": "128.40.126.2",
+  "www.catsanddogs.com": "192.106.25.3",
+  "www.petshop.com": "128.30.255.255",
+  "www.amazon.com": "140.175.20.15",
+  "www.ebooks.com": "192.168.12.1"
+}
+
+# dictionary with cname key value pairs
+c_name = {
+    "www.travelblog.videos.com" : "www.travelblog.com",
+    "www.retroart.pics.com" : "www.retroart.com",
+    "www.ancientegypt.blog.com" : "www.ancientegypt795.double.com",
+    "www.torrents.com": "www.torrents.repo.com",
+    "www.horrorblog.com": "www.domain.blogspot282.com"
+}
+
+# initialize server
+serverPort = 11500
+serverSocket = socket(AF_INET, SOCK_DGRAM)
+serverSocket.bind(('', serverPort))
+print("The server is live")
+
+# retrieves and sends message to client
+while True:
+    message, clientAddress = serverSocket.recvfrom(2048)
+    message = message.decode()
+    result = retrieve(message)
+    serverSocket.sendto(result.encode(), clientAddress)
+
