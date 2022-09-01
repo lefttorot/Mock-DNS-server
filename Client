@@ -1,0 +1,51 @@
+from socket import *
+
+serverName = "127.0.0.1"
+serverPort = 11500
+clientSocket = socket(AF_INET, SOCK_DGRAM)
+
+# prompts user to continue
+flag = True
+while flag:
+    # user enters hostname
+    hostName = input("Enter hostname: ")
+
+    # user enters desired resource record
+    while True:
+        resourceRecord = input("Enter 1 for type_A or 2 for CNAME: ")
+        if resourceRecord == "1" or resourceRecord == "2":
+            break
+        else:
+            print("Invalid input")
+    print()
+
+    # attaches header to host name
+    message = resourceRecord + hostName
+    # sends message to DNS server
+    clientSocket.sendto(message.encode(), (serverName, serverPort))
+    # retrieves reply from DNS server
+    serverReply, serverAddress = clientSocket.recvfrom(2048)
+    address = serverReply.decode()
+
+    # Prints host name and DNS reply into terminal
+    print("Hostname: " + hostName)
+    if resourceRecord == "1":
+        print("IP Address: " + address)
+    elif resourceRecord == "2":
+        print("Canonical Domain: " + address)
+
+    print()
+    # prompts whether user wants to continue or terminate
+    while True:
+        answer = input("Would you like to continue?[y,n]: ")
+        if answer == "y" or answer == "Y":
+            break
+        elif answer == "n" or answer == "N":
+            flag = False
+            break
+        else:
+            print("Invalid input")
+
+# closes connection
+clientSocket.close()
+
